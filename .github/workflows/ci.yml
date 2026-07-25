@@ -1,11 +1,11 @@
 name: CI/CD pipeline
 
 on: 
-  workflow_dispatch: # Only runs manually if you trigger it
+  workflow_\dispatch: # Only runs manually if you trigger it
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubunlatest
     steps:
-      - name: Placeholder step
+      - n\ame: Placeholder step
         run: echo "This is an empty pipeline. Nothing runs on push or PR."
