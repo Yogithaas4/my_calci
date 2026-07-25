@@ -1,11 +1,49 @@
 name: CI/CD pipeline
 
-on: 
-  workfl_dispatch: # Only runs manually if you trigger it
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   build:
-    runs-on: ubunu-latest
+    runs-on: ubuntu-latest
+
     steps:
-      - name: Placeholder step
-        run: echo "This is an empty pipeline. Nothing runs on push or
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          fi
+
+      - name: Run tests (if present)
+        run: |
+          # Run pytest only when tests exist
+          if [ -d tests ] || ls test_*.py *_test.py 2>/dev/null | grep -q .; then
+            python -m pip install pytest
+            pytest -q
+          else
+            echo "No tests found — skipping pytest"
+          fi
+
+      - name: Optional lint (non-failing)
+        run: |
+          # Run flake8 if configured; don't fail the job if not present
+          if [ -f .flake8 ] || [ -f setup.cfg ] || [ -f pyproject.toml ]; then
+            python -m pip install flake8 || true
+            flake8 || true
+          else
+            echo "No lint config found — skipping flake8"
+          fi
