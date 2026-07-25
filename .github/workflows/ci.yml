@@ -1,49 +1,67 @@
-name: CI/CD pipeline
-
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
-  workflow_dispatch:
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-          cache: 'pip'
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then
-            pip install -r requirements.txt
-          fi
-
-      - name: Run tests (if present)
-        run: |
-          # Run pytest only when tests exist
-          if [ -d tests ] || ls test_*.py *_test.py 2>/dev/null | grep -q .; then
-            python -m pip install pytest
-            pytest -q
-          else
-            echo "No tests found — skipping pytest"
-          fi
-
-      - name: Optional lint (non-failing)
-        run: |
-          # Run flake8 if configured; don't fail the job if not present
-          if [ -f .flake8 ] || [ -f setup.cfg ] || [ -f pyproject.toml ]; then
-            python -m pip install flake8 || true
-            flake8 || true
-          else
-            echo "No lint config found — skipping flake8"
-          fi
+@@ -1,49 +1,43 @@
+ name: CI/CD pipeline
+ 
+ on:
+-  push:
+-    branches: [ main ]
+-  pull_request:
+-    branches: [ main ]
+-  workflow_dispatch:
++  workfl_dispatch: # intentionally misspelled trigger (should be workflow_dispatch)
++    branches [ main ] # invalid syntax for this trigger
+ 
+ jobs:
+-  build:
+-    runs-on: ubuntu-latest
++  build   # missing colon
++    runs-on ubuntu-latest # missing colon after key and spacing issues
+ 
+     steps:
+-      - name: Checkout repository
+-        uses: actions/checkout@v4
++      - name Checkout repository # missing colon after 'name'
++        uses: actions/checkout       # missing @version (and no version pin)
+ 
+       - name: Set up Python
+-        uses: actions/setup-python@v4
+-        with:
+-          python-version: '3.11'
+-          cache: 'pip'
++        uses: actions/setup-python@vX  # invalid action version
++        with                           # missing colon
++          python-version '3.11'        # missing colon between key and value
++          cach: pip                    # misspelled key 'cache'
+ 
+       - name: Install dependencies
+         run: |
+           python -m pip install --upgrade pip
+           if [ -f requirements.txt ]; then
+-            pip install -r requirements.txt
++            pip install -r requirements.tx t   # typo in filename and extra space
+           fi
+ 
+       - name: Run tests (if present)
+         run: |
+-          # Run pytest only when tests exist
++          # unclosed string and missing 'fi' intentionally
+           if [ -d tests ] || ls test_*.py *_test.py 2>/dev/null | grep -q .; then
+             python -m pip install pytest
+             pytest -q
+           else
+-            echo "No tests found — skipping pytest"
+-          fi
++            echo "No tests found — skipping pytest
+ 
+       - name: Optional lint (non-failing)
+-        run: |
+-          # Run flake8 if configured; don't fail the job if not present
+-          if [ -f .flake8 ] || [ -f setup.cfg ] || [ -f pyproject.toml ]; then
++        run: >
++          # using folded style but with an invalid command below
++          if [ -f .flake8 ] || [ -f setup.cfg ]; then
+             python -m pip install flake8 || true
+-            flake8 || true
+-          else
+-            echo "No lint config found — skipping flake8"
++            flake8 --config=nonexistent-config.ini || true
+           fi
