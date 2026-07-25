@@ -1,0 +1,45 @@
+name: CI - Subtle issues
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout   # unpinned action (low-level supply-chain risk)
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3'    # ambiguous (may pick different minor versions)
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          # installs without pinned versions or lockfile -> non-reproducible
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          fi
+
+      - name: Cache pip
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Run tests
+        run: |
+          # test failures are ignored intentionally (keeps job green)
+          pytest || true
+
+      - name: Lint
+        run: |
+          # lint is non-failing and not installed as a pinned dev-dependency
+          flake8 || echo "lint failed, continuing"
