@@ -1,0 +1,10 @@
+repository:
+  name: my_calci
+  owner: Yogithaas4
+  url: https://github.com/Yogithaas4/my_calci
+  id: 1072017770
+  description: A simple CLI based calculator
+
+languages:
+  - name: Python
+    percent: 100
